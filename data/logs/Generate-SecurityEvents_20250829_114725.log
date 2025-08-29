@@ -1,0 +1,26 @@
+﻿**********************
+Windows PowerShell transcript start
+Start time: 20250829114725
+Username: DESKTOP-CEST7TS\Win10Lab
+RunAs User: DESKTOP-CEST7TS\Win10Lab
+Configuration Name: 
+Machine: DESKTOP-CEST7TS (Microsoft Windows NT 10.0.19045.0)
+Host Application: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+Process ID: 1272
+PSVersion: 5.1.19041.3803
+PSEdition: Desktop
+PSCompatibleVersions: 1.0, 2.0, 3.0, 4.0, 5.0, 5.1.19041.3803
+BuildVersion: 10.0.19041.3803
+CLRVersion: 4.0.30319.42000
+WSManStackVersion: 3.0
+PSRemotingProtocolVersion: 2.3
+SerializationVersion: 1.1.0.1
+**********************
+Security Analyst Dashboard - Event Generation Complete!
+Security CSV : C:\Users\Win10Lab\Documents\GitHub\Soc-analyst-dashboard\scripts\..\data\logs\SecurityEvents_20250829_114725.csv
+Network  CSV : C:\Users\Win10Lab\Documents\GitHub\Soc-analyst-dashboard\scripts\..\data\logs\NetworkEvents_20250829_114725.csv
+Transcript  : C:\Users\Win10Lab\Documents\GitHub\Soc-analyst-dashboard\scripts\..\data\logs\Generate-SecurityEvents_20250829_114725.log
+**********************
+Windows PowerShell transcript end
+End time: 20250829114727
+**********************

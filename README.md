@@ -1,232 +1,165 @@
-# SOC Analyst Dashboard
+SOC Analyst Dashboard (Demo)
 
-**Professional cybersecurity monitoring solution demonstrating SOC analyst capabilities through PowerShell automation and real-time threat visualization.**
+A lightweight, self-contained SOC demo that:
 
----
+Generates synthetic security + network events
 
-## 🎯 **Project Overview**
+Detects brute force patterns and suspicious malware-like comms
 
-This project showcases end-to-end Security Operations Center (SOC) workflows, featuring automated threat detection, security event analysis, and interactive dashboard visualization. Built specifically to demonstrate skills required for SOC Analyst positions.
+Displays a slick dashboard in your browser
 
-**Key Capabilities:**
-- **Automated Security Event Generation**: Creates realistic security events for testing
-- **Threat Detection Algorithms**: Brute force and malware communication detection
-- **Real-time Dashboard**: Interactive web-based security monitoring interface
-- **Professional Reporting**: Enterprise-ready security analysis output
+Designed for easy evaluation by hiring teams: clone → run one command → see results.
 
----
+🔧 Prerequisites
 
-## 🚀 **Quick Start**
+Windows with PowerShell
 
-### Prerequisites
-- Windows PowerShell 5.1 or later
-- Modern web browser (Chrome, Firefox, Edge)
-- Administrator privileges for PowerShell execution
+Windows PowerShell 5.1 or PowerShell 7+ (pwsh)
 
-### Installation
-```powershell
-# Clone the repository
-git clone https://github.com/YOUR_USERNAME/soc-analyst-dashboard.git
-cd soc-analyst-dashboard
+No external dependencies; everything runs locally
 
-# Set execution policy (if needed)
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-```
+(Optional) Python 3 if you prefer to serve the dashboard via http.server (not required)
 
-### Usage Workflow
-```powershell
-# 1. Generate realistic security events (24 hours, 10,000 events)
-.\scripts\Generate-SecurityEvents.ps1 -Hours 24 -EventCount 10000
+🚀 One-Touch Start (recommended)
 
-# 2. Run brute force attack detection
-.\scripts\Detect-BruteForce.ps1
+From a PowerShell prompt in the repo root:
 
-# 3. Run malware communication detection
-.\scripts\Detect-Malware.ps1
+.\Start-SOCDashboard.ps1
 
-# 4. Open the dashboard
+
+This will:
+
+Generate fresh synthetic logs
+
+Run both detections
+
+Open the dashboard (dashboard\index.html) in your default browser
+
+Optional knobs:
+
+# Simulate a larger window / more data
+.\Start-SOCDashboard.ps1 -Hours 12 -EventCount 8000
+
+# Generate + detect only (don't open browser)
+.\Start-SOCDashboard.ps1 -NoBrowser
+
+📂 Project Structure
+Soc-analyst-dashboard/
+├─ Start-SOCDashboard.ps1            # One-touch runner (generate → detect → open UI)
+├─ scripts/
+│  ├─ Generate-SecurityEvents.ps1    # Creates synthetic CSVs in data\sample-logs
+│  ├─ Detect-BruteForce.ps1          # Reads security_events.csv → writes reports
+│  └─ Detect-Malware.ps1             # Reads network_events.csv  → writes reports
+├─ data/
+│  ├─ logs/                          # Timestamped raw CSV outputs
+│  ├─ sample-logs/                   # Rolling “latest” CSVs used by the dashboard
+│  ├─ reports/                       # Detection outputs (CSV/TXT; optional JSON)
+│  └─ threat-intel/                  # (Optional) .txt IOC lists (one per line)
+└─ dashboard/
+   ├─ index.html
+   ├─ css/styles.css
+   └─ js/dashboard.js
+
+🧪 What Each Script Does
+Generate-SecurityEvents.ps1
+
+Produces security events (4624/4625/4688/4720/4723/4768) and network events
+
+Writes timestamped CSVs to data\logs\ and rolling copies to:
+
+data\sample-logs\security_events.csv
+
+data\sample-logs\network_events.csv
+
+Examples
+
+.\scripts\Generate-SecurityEvents.ps1                # default: 24h, 1000 events
+.\scripts\Generate-SecurityEvents.ps1 -Hours 6 -EventCount 2500
+
+Detect-BruteForce.ps1
+
+Scans security_events.csv for failed logon bursts per (User, SourceIP)
+
+Outputs to data\reports\BruteForce_*.csv/.txt
+
+Example
+
+.\scripts\Detect-BruteForce.ps1 -WindowMinutes 10 -Threshold 5
+
+Detect-Malware.ps1
+
+Scans network_events.csv for repetitive OUTBOUND beacons / odd ports / small keep-alives
+
+Optional poor-man’s TI: drop IOC text files in data\threat-intel\ (one IP/domain per line)
+
+Outputs to data\reports\Malware_*.csv/.txt
+
+Example
+
+.\scripts\Detect-Malware.ps1 -WindowMinutes 15 -MinBursts 8 -SmallPktMax 15
+
+📊 The Dashboard
+
+Open automatically via the one-touch script, or manually:
+
+Double-click dashboard\index.html, or
+
+Serve locally to avoid any file:// CORS edge-cases:
+
+cd .\dashboard
+python -m http.server 8080
+# browse to http://localhost:8080
+
+
+What it shows
+
+Live-styled metrics, alert feed, threat breakdown, and an investigation queue
+
+Reads the rolling CSVs from data\sample-logs\
+(Detections are reflected indirectly; you can extend the UI to read data\reports\ for explicit alert counts)
+
+Branding note
+Header shows a generic “Analyst” label (not a personal name) for portfolio use.
+
+🧭 Typical Flow (manual)
+# 1) Generate
+.\scripts\Generate-SecurityEvents.ps1 -Hours 6 -EventCount 2000
+
+# 2) Detect
+.\scripts\Detect-BruteForce.ps1 -WindowMinutes 10 -Threshold 5
+.\scripts\Detect-Malware.ps1   -WindowMinutes 15 -MinBursts 8
+
+# 3) View
 start .\dashboard\index.html
-```
 
----
+🛠️ Troubleshooting
 
-## 📁 **Project Structure**
+“running scripts is disabled”
 
-```
-soc-analyst-dashboard/
-├── README.md                           # Project documentation
-├── scripts/                           # PowerShell automation scripts
-│   ├── Generate-SecurityEvents.ps1    # Security event generation
-│   ├── Detect-BruteForce.ps1         # Brute force attack detection
-│   └── Detect-Malware.ps1            # Malware communication detection
-├── dashboard/                         # Web dashboard interface
-│   ├── index.html                     # Main dashboard page
-│   ├── css/styles.css                 # Cybersecurity-themed styling
-│   └── js/dashboard.js                # Interactive functionality
-├── docs/                              # Additional documentation
-│   └── SETUP.md                       # Detailed setup instructions
-└── data/                              # Data directories (created at runtime)
-    ├── logs/                          # Timestamped security event logs
-    ├── sample-logs/                   # Sample data for detection scripts
-    ├── reports/                       # Threat detection reports
-    └── threat-intel/                  # Threat intelligence data
-```
+Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
 
----
 
-## 🔧 **Component Details**
+Dashboard doesn’t update: Regenerate → Ctrl+F5 hard refresh (disable cache in DevTools if needed).
 
-### PowerShell Scripts
+No detections: Lower thresholds (e.g., -Threshold 3 or -MinBursts 3) or increase -EventCount.
 
-#### `Generate-SecurityEvents.ps1`
-Creates realistic security events for testing and demonstration:
-- **Parameters**: `-Hours` (time range), `-EventCount` (number of events)
-- **Output**: Creates files in both `data/logs/` and `data/sample-logs/`
-- **Features**: Realistic IP addresses, usernames, timestamps, and event types
-- **Creates**: security_events.csv and network_events.csv for detection scripts
+Encoding/parsing issues: Scripts are ASCII/UTF-8 clean and PS 5.1–safe. If you edited files in another editor, resave as UTF-8 (without BOM).
 
-#### `Detect-BruteForce.ps1`
-Analyzes security events for brute force attack patterns:
-- **Input**: `data/sample-logs/security_events.csv` (created by Generate-SecurityEvents.ps1)
-- **Output**: Detailed brute force detection reports in `data/reports/`
-- **Capabilities**: Pattern recognition, risk scoring, IOC identification
-- **Detection**: Failed login attempts (Event ID 4625) with configurable thresholds
+🧩 Extending the Demo (optional)
 
-#### `Detect-Malware.ps1`
-Identifies malware communication patterns in network logs:
-- **Input**: `data/sample-logs/network_events.csv` (created by Generate-SecurityEvents.ps1)
-- **Output**: Malware communication analysis reports in `data/reports/`
-- **Features**: C2 detection, suspicious domain identification, threat classification
-- **Intelligence**: Creates and uses threat intelligence feeds automatically
+Add data\reports\*_latest.json summaries (already scaffolded in scripts) and a tiny JS fetch to show live alert counts in the header.
 
-### Web Dashboard
+Swap in your own CSVs to visualize real data (schemas documented in the generator script).
 
-**Interactive Features:**
-- **Real-time Metrics**: Security event statistics and threat counts
-- **Visual Analytics**: Charts and graphs for threat visualization
-- **Alert Management**: Prioritized security alerts with severity levels
-- **System Status**: Infrastructure health monitoring
-- **Responsive Design**: Professional cybersecurity aesthetic
+Schedule the generator with Task Scheduler to refresh data periodically.
 
----
+📜 License & Attribution
 
-## 📊 **Expected Output**
+This demo is intended for portfolio and interview evaluation use.
 
-### After Running Generate-SecurityEvents.ps1
-```
-✅ SUCCESS: Generated 10,000 security events
-📁 Main file: .\data\logs\SecurityEvents_20250829_143022.csv
-📁 Sample files created for detection scripts
 
-📊 Event Summary:
-   Info Events: 6,847
-   Warning Events: 2,306
-   High/Critical Events: 847
-```
+Quickstart for Reviewers
 
-### After Running Detect-BruteForce.ps1
-```
-🚨 BRUTE FORCE ATTACKS DETECTED: 3
-📄 Generating incident reports...
-   ✅ Report saved: BF-20250829-143045-18522010024.txt
-📈 Threats Detected: 3 (Critical: 1 | High: 1 | Medium: 1)
-```
-
-### After Running Detect-Malware.ps1
-```
-🦠 MALWARE COMMUNICATIONS DETECTED: 7
-📄 Generating detailed incident reports...
-   ✅ Report saved: MW-20250829-143067-18522010142.txt
-📈 Affected Internal Hosts: 4
-```
-
----
-
-## 🎯 **Professional Applications**
-
-### SOC Analyst Skills Demonstrated
-- **Security Event Analysis**: Pattern recognition and threat identification
-- **PowerShell Automation**: Enterprise-level scripting for security operations
-- **Data Visualization**: Converting security data into actionable insights
-- **Incident Response**: Systematic approach to threat detection and reporting
-- **Documentation**: Professional reporting for stakeholder communication
-
-### Enterprise Integration Ready
-- **SIEM Compatible**: Outputs integrate with Splunk, QRadar, or similar platforms
-- **Scalable Architecture**: Designed for high-volume security event processing
-- **Compliance Reporting**: Structured output for audit and compliance requirements
-- **Threat Intelligence**: Automated IOC matching and threat categorization
-
----
-
-## 🔍 **Testing & Validation**
-
-### Quick Test (1-minute demo)
-```powershell
-# Generate smaller dataset for quick testing
-.\scripts\Generate-SecurityEvents.ps1 -Hours 1 -EventCount 1000
-.\scripts\Detect-BruteForce.ps1
-.\scripts\Detect-Malware.ps1
-
-# Verify dashboard functionality
-start .\dashboard\index.html
-```
-
-### Troubleshooting
-If you encounter PowerShell execution errors:
-```powershell
-# Set execution policy
-Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
-
-# If scripts fail, ensure you're running as Administrator
-# Right-click PowerShell → "Run as Administrator"
-```
-
-### Common Issues
-- **"File not found"**: Run Generate-SecurityEvents.ps1 first to create sample data
-- **"Access denied"**: Run PowerShell as Administrator
-- **"Execution policy"**: Use the Set-ExecutionPolicy command above
-
----
-
-## 📈 **Technical Highlights**
-
-### Technologies Used
-- **Backend**: PowerShell 5.1+ for security automation
-- **Frontend**: HTML5, CSS3, JavaScript (ES6+)
-- **Data Processing**: CSV parsing and analysis
-- **Visualization**: Interactive security metrics and charts
-- **Styling**: Modern cybersecurity-themed dark UI
-
-### Security Considerations
-- **Synthetic Data**: All generated events are synthetic for demonstration
-- **No Sensitive Information**: No real credentials or system data used
-- **Safe Testing**: Designed for isolated testing environments
-- **Threat Intelligence**: Simulated IOCs for demonstration purposes
-
----
-
-## 🚀 **Future Enhancements**
-
-- **Machine Learning Integration**: AI-powered threat detection algorithms
-- **Real-time Streaming**: Live security event processing
-- **API Development**: RESTful API for enterprise integration
-- **Advanced Analytics**: Behavioral analysis and anomaly detection
-- **SIEM Integration**: Direct integration with enterprise security platforms
-
----
-
-## 📄 **License**
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👤 **Author**
-
-**Artez Chapman** - Cybersecurity Professional  
-*Built to demonstrate SOC analyst capabilities and cybersecurity automation skills.*
-
----
-
-**⚡ Ready for Enterprise SOC Deployment ⚡**
+# In repo root
+.\Start-SOCDashboard.ps1
+# Browser opens with fresh data & detections

@@ -1,0 +1,7 @@
+﻿BRUTE FORCE DETECTION REPORT
+Generated : 2025-08-29 11:55:50
+Source    : C:\Users\Win10Lab\Documents\GitHub\Soc-analyst-dashboard\scripts\..\data\sample-logs\security_events.csv
+Window    : 10 minute(s)
+Threshold : 5 attempts
+Findings  : 0  (Overall Severity: Informational)
+
