@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Analyst Dashboard - Artez Chapman</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- Header -->
+        <header class="dashboard-header">
+            <div class="header-left">
+                <h1>🛡️ SOC Analyst Dashboard</h1>
+                <div class="status-badge active">System Active</div>
+            </div>
+            <div class="header-right">
+                <div class="timestamp" id="currentTime"></div>
+                <div class="analyst-info">
+                    <span>Analyst: Artez Chapman</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Dashboard -->
+        <main class="dashboard-main">
+            <!-- Key Metrics Row -->
+            <section class="metrics-section">
+                <div class="metric-card">
+                    <div class="metric-icon">📊</div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="totalEvents">10,847</div>
+                        <div class="metric-label">Events Analyzed</div>
+                        <div class="metric-change positive">+2.3% from last hour</div>
+                    </div>
+                </div>
+                
+                <div class="metric-card alert">
+                    <div class="metric-icon">🚨</div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="activeThreats">7</div>
+                        <div class="metric-label">Active Threats</div>
+                        <div class="metric-change negative">+3 new threats</div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon">⏱️</div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="mttd">4.2</div>
+                        <div class="metric-label">MTTD (minutes)</div>
+                        <div class="metric-change positive">-15% improvement</div>
+                    </div>
+                </div>
+                
+                <div class="metric-card">
+                    <div class="metric-icon">🎯</div>
+                    <div class="metric-content">
+                        <div class="metric-value" id="accuracy">97.8%</div>
+                        <div class="metric-label">Detection Accuracy</div>
+                        <div class="metric-change positive">+0.5% this week</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Alert Feed and Analysis -->
+            <section class="content-grid">
+                <!-- Live Alert Feed -->
+                <div class="panel alert-feed">
+                    <div class="panel-header">
+                        <h3>🔔 Live Threat Feed</h3>
+                        <div class="panel-controls">
+                            <button class="btn-control active" id="autoRefresh">Auto Refresh</button>
+                            <span class="refresh-indicator" id="refreshDot"></span>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="alert-list" id="alertFeed">
+                            <!-- Alerts will be populated by JavaScript -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Threat Analysis -->
+                <div class="panel threat-analysis">
+                    <div class="panel-header">
+                        <h3>📈 Threat Analysis</h3>
+                        <div class="panel-controls">
+                            <select class="timeframe-select" id="timeframe">
+                                <option value="1h">Last Hour</option>
+                                <option value="24h" selected>Last 24 Hours</option>
+                                <option value="7d">Last 7 Days</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="threat-breakdown">
+                            <div class="threat-category critical">
+                                <div class="category-bar" style="width: 25%"></div>
+                                <div class="category-info">
+                                    <span class="category-label">Critical</span>
+                                    <span class="category-count">2</span>
+                                </div>
+                            </div>
+                            <div class="threat-category high">
+                                <div class="category-bar" style="width: 45%"></div>
+                                <div class="category-info">
+                                    <span class="category-label">High</span>
+                                    <span class="category-count">3</span>
+                                </div>
+                            </div>
+                            <div class="threat-category medium">
+                                <div class="category-bar" style="width: 30%"></div>
+                                <div class="category-info">
+                                    <span class="category-label">Medium</span>
+                                    <span class="category-count">2</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="threat-types">
+                            <h4>Top Threat Types</h4>
+                            <div class="threat-type-item">
+                                <span class="threat-icon">🔓</span>
+                                <span class="threat-name">Brute Force Attacks</span>
+                                <span class="threat-count">4</span>
+                            </div>
+                            <div class="threat-type-item">
+                                <span class="threat-icon">🦠</span>
+                                <span class="threat-name">Malware Communications</span>
+                                <span class="threat-count">2</span>
+                            </div>
+                            <div class="threat-type-item">
+                                <span class="threat-icon">📤</span>
+                                <span class="threat-name">Data Exfiltration</span>
+                                <span class="threat-count">1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Detailed Investigation Queue -->
+            <section class="investigation-section">
+                <div class="panel full-width">
+                    <div class="panel-header">
+                        <h3>🔍 Investigation Queue</h3>
+                        <div class="panel-controls">
+                            <button class="btn-control" id="exportIncidents">Export Report</button>
+                            <button class="btn-control primary" id="runAnalysis">Run Full Analysis</button>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="investigation-table">
+                            <table id="investigationQueue">
+                                <thead>
+                                    <tr>
+                                        <th>Incident ID</th>
+                                        <th>Threat Type</th>
+                                        <th>Severity</th>
+                                        <th>Source</th>
+                                        <th>Time Detected</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Investigation items will be populated by JavaScript -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Terminal Window -->
+            <section class="terminal-section">
+                <div class="panel terminal-panel">
+                    <div class="panel-header">
+                        <h3>💻 Analysis Terminal</h3>
+                        <div class="terminal-controls">
+                            <span class="terminal-dot red"></span>
+                            <span class="terminal-dot yellow"></span>
+                            <span class="terminal-dot green"></span>
+                        </div>
+                    </div>
+                    <div class="panel-content">
+                        <div class="terminal-window" id="terminal">
+                            <div class="terminal-line">
+                                <span class="prompt">soc-analyst@dashboard:~$</span>
+                                <span class="command">powershell .\scripts\Generate-SecurityEvents.ps1 -Hours 24</span>
+                            </div>
+                            <div class="terminal-output">
+                                SOC Analyst Dashboard - Security Event Generator<br>
+                                =================================================<br>
+                                <span class="success">✅ Generated 10,847 events over 24 hours</span><br>
+                                <span class="warning">⚠️  Found 7 suspicious patterns</span><br>
+                                <span class="info">📊 Events exported to data/sample-logs/</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="prompt">soc-analyst@dashboard:~$</span>
+                                <span class="command">.\scripts\Detect-BruteForce.ps1 -Threshold 10</span>
+                            </div>
+                            <div class="terminal-output">
+                                <span class="alert">🚨 BRUTE FORCE ATTACKS DETECTED: 4</span><br>
+                                <span class="info">├─ 203.0.113.15: 47 attempts (Critical)</span><br>
+                                <span class="info">├─ 198.51.100.25: 23 attempts (High)</span><br>
+                                <span class="info">└─ Incident reports generated</span>
+                            </div>
+                            <div class="terminal-line">
+                                <span class="prompt">soc-analyst@dashboard:~$</span>
+                                <span class="cursor-blink">_</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- Footer -->
+        <footer class="dashboard-footer">
+            <div class="footer-left">
+                <span>SOC Analyst Dashboard - Demonstration Project</span>
+                <span class="separator">|</span>
+                <span>Created by Artez Chapman</span>
+            </div>
+            <div class="footer-right">
+                <span>Last Analysis: <span id="lastAnalysis">2025-08-26 14:32:15</span></span>
+            </div>
+        </footer>
+    </div>
+
+    <script src="js/dashboard.js"></script>
+</body>
+</html>
