@@ -15,7 +15,7 @@ param(
     [int]$TimeWindowMinutes = 60,
     
     [Parameter(Mandatory=$false)]
-    [string]$OutputPath = ".\docs\incident-reports\"
+    [string]$OutputPath = ".\data\reports\"
 )
 
 Write-Host "SOC Analyst Dashboard - Brute Force Detection Engine" -ForegroundColor Cyan

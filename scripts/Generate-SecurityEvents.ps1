@@ -20,15 +20,16 @@ if (!(Test-Path $OutputPath)) {
     Write-Host "Created output directory: $OutputPath" -ForegroundColor Green
 }
 
-# Create logs and reports subdirectories
-$LogsPath = Join-Path $OutputPath "logs"
+# Create data directories
+$LogsPath = "$OutputPath"
 $ReportsPath = ".\data\reports"
+$SampleLogsPath = ".\data\sample-logs"
 
-if (!(Test-Path $LogsPath)) {
-    New-Item -ItemType Directory -Path $LogsPath -Force | Out-Null
-}
 if (!(Test-Path $ReportsPath)) {
     New-Item -ItemType Directory -Path $ReportsPath -Force | Out-Null
+}
+if (!(Test-Path $SampleLogsPath)) {
+    New-Item -ItemType Directory -Path $SampleLogsPath -Force | Out-Null
 }
 
 Write-Host "=== SOC Analyst Dashboard - Security Event Generator ===" -ForegroundColor Cyan
@@ -155,14 +156,44 @@ for ($i = 0; $i -lt $EventCount; $i++) {
 # Sort events by timestamp for realistic chronological order
 $SecurityEvents = $SecurityEvents | Sort-Object Timestamp
 
-# Generate output filename with timestamp
-$OutputFile = Join-Path $LogsPath "SecurityEvents_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
+# Generate multiple output files for different script needs
+$SecurityEventsFile = Join-Path $LogsPath "SecurityEvents_$(Get-Date -Format 'yyyyMMdd_HHmmss').csv"
+$SampleSecurityFile = "$SampleLogsPath\security_events.csv"
+$SampleNetworkFile = "$SampleLogsPath\network_events.csv"
 
 # Export to CSV
 try {
-    $SecurityEvents | Export-Csv -Path $OutputFile -NoTypeInformation -Encoding UTF8
+    # Main timestamped file
+    $SecurityEvents | Export-Csv -Path $SecurityEventsFile -NoTypeInformation -Encoding UTF8
+    
+    # Copy for detection scripts (security events with failed logins)
+    $SecurityEventsWithFailed = $SecurityEvents | ForEach-Object {
+        if ($_.EventType -eq "FailedLogin") {
+            $_.EventID = 4625  # Windows failed logon event ID
+            $_.Username = $_.UserAccount
+        }
+        $_
+    }
+    $SecurityEventsWithFailed | Export-Csv -Path $SampleSecurityFile -NoTypeInformation -Encoding UTF8
+    
+    # Create network events (filter network-related events)
+    $NetworkEvents = $SecurityEvents | Where-Object {$_.EventType -in @("NetworkConnection", "C2Communication", "DataExfiltration")} | ForEach-Object {
+        [PSCustomObject]@{
+            Timestamp = $_.Timestamp
+            SourceIP = $_.SourceIP
+            DestinationIP = if ($_.Destination -like "*.local") { $_.Destination } else { (Get-Random -InputObject @("185.220.101.42", "45.33.32.156", "203.0.113.195", "198.51.100.178")) }
+            Port = Get-Random -Minimum 80 -Maximum 65535
+            Protocol = ("TCP", "UDP", "HTTP", "HTTPS") | Get-Random
+            Bytes = $_.BytesTransferred
+        }
+    }
+    if ($NetworkEvents.Count -gt 0) {
+        $NetworkEvents | Export-Csv -Path $SampleNetworkFile -NoTypeInformation -Encoding UTF8
+    }
+    
     Write-Host "`n✅ SUCCESS: Generated $($SecurityEvents.Count) security events" -ForegroundColor Green
-    Write-Host "📁 Output file: $OutputFile" -ForegroundColor Green
+    Write-Host "📁 Main file: $SecurityEventsFile" -ForegroundColor Green
+    Write-Host "📁 Sample files created for detection scripts" -ForegroundColor Green
     
     # Display summary statistics
     $SuspiciousCount = ($SecurityEvents | Where-Object {$_.Severity -in @("High", "Critical")}).Count
